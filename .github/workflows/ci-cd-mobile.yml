@@ -16,10 +16,12 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'  # Specify a specific version of Flutter (replace with the version you want)
+          flutter-version: '3.27.1'  # Specify the Flutter version you want
 
       - name: Install Dependencies
         run: flutter pub get
+        working-directory: ./mobile  # Navigate to the mobile directory where your pubspec.yaml is
 
       - name: Build APK
         run: flutter build apk
+        working-directory: ./mobile  # Navigate to the mobile directory for build command
