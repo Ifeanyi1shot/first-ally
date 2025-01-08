@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "V/WzdlyJ0v4fgmEEsqQG+QzkcgLRLNA4uGZrjEEHdZfhx2rf03sIsjK/Gpiq4xer0qsXHI9StDN/Sj34O30aXQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Ifeanyi\\project-root\\backend\\backend.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Ifeanyi\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.25\\microsoft.netcore.app.ref.6.0.25.nupkg.sha512",
+    "C:\\Users\\Ifeanyi\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.25\\microsoft.windowsdesktop.app.ref.6.0.25.nupkg.sha512",
+    "C:\\Users\\Ifeanyi\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.25\\microsoft.aspnetcore.app.ref.6.0.25.nupkg.sha512",
+    "C:\\Users\\Ifeanyi\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.25\\microsoft.netcore.app.host.win-x64.6.0.25.nupkg.sha512"
+  ],
+  "logs": []
+}

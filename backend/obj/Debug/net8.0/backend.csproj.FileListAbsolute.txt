@@ -1,0 +1,14 @@
+C:\Users\Ifeanyi\project-root\backend\bin\Debug\net8.0\backend.exe
+C:\Users\Ifeanyi\project-root\backend\bin\Debug\net8.0\backend.deps.json
+C:\Users\Ifeanyi\project-root\backend\bin\Debug\net8.0\backend.runtimeconfig.json
+C:\Users\Ifeanyi\project-root\backend\bin\Debug\net8.0\backend.dll
+C:\Users\Ifeanyi\project-root\backend\bin\Debug\net8.0\backend.pdb
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.AssemblyInfoInputs.cache
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.AssemblyInfo.cs
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.csproj.CoreCompileInputs.cache
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.dll
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\refint\backend.dll
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.pdb
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\backend.genruntimeconfig.cache
+C:\Users\Ifeanyi\project-root\backend\obj\Debug\net8.0\ref\backend.dll

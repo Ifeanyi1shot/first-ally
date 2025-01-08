@@ -1,0 +1,30 @@
+{
+    "dashboard": {
+      "title": "Application Monitoring",
+      "panels": [
+        {
+          "title": "Backend Response Time",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "http_request_duration_seconds",
+              "legendFormat": "{{handler}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "title": "Frontend Error Rate",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(http_errors_total[1m])",
+              "legendFormat": "{{handler}}",
+              "refId": "B"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  
