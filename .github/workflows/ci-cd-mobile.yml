@@ -18,6 +18,10 @@ jobs:
         with:
           flutter-version: 'stable'
 
+      - name: Upgrade Flutter to latest stable
+        run: flutter upgrade
+
+
       - name: Install Dependencies
         run: flutter pub get
 
