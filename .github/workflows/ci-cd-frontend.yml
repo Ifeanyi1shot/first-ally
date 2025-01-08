@@ -20,9 +20,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./frontend # Set the correct working directory
 
       - name: Build
         run: npm run build
+        working-directory: ./frontend # Ensure the build runs in the correct directory
 
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
