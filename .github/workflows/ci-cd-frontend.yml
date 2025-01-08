@@ -19,12 +19,16 @@ jobs:
           node-version: '18'
 
       - name: Install Dependencies
-        run: npm install
-        working-directory: ./frontend # Set the correct working directory
+        run: npm ci # Use 'npm ci' for a clean install
+        working-directory: ./frontend
+
+      - name: Fix Permissions
+        run: chmod +x ./node_modules/.bin/* # Ensure all binaries are executable
+        working-directory: ./frontend
 
       - name: Build
         run: npm run build
-        working-directory: ./frontend # Ensure the build runs in the correct directory
+        working-directory: ./frontend
 
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
