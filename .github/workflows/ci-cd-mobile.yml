@@ -16,14 +16,10 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
-
-      - name: Upgrade Flutter to latest stable
-        run: flutter upgrade
-
+          flutter-version: '3.27.1'  # Specify a specific version of Flutter (replace with the version you want)
 
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build
+      - name: Build APK
         run: flutter build apk
