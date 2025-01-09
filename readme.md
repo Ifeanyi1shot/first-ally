@@ -1,122 +1,93 @@
-# Cloud Architecture, Network Setup, and Cost Optimization Strategies
+# DevOps Architecture and Documentation
 
-## 1. **Cloud Architecture Overview**
-
-### Components
-
-1. **Flutter Mobile App**
-   - install and build in the CI/CD pipeline.
-
-2. **.NET Core Backend**
-   - Hosted on Azure App Services.
-   - Connected to a managed Azure SQL Database.
-   - Secured within a Virtual Private Cloud (VPC) using subnet segregation.
-
-3. **React Web-Based Back-Office Application**
-   - Deployed to Azure Static Web Apps.
-   - Integrated with the .NET Core Backend API.
+## Cloud Architecture Overview
 
 ### Architecture Diagram
-```text
-                +---------------------------+
-                |       User Devices        |
-                |   (Mobile, Web Browser)   |
-                +------------+--------------+
-                             |
-                             v
-+---------------------------+---------------------------+
-|                     Azure Front Door                   |
-|      (HTTPS with Load Balancing & WAF Protection)      |
-+---------------------------+---------------------------+
-                /                                \
-+---------------------------+          +---------------------------+
-|    React Web Application  |          |     .NET Core Backend    |
-|   (Azure Static Web App)  |          | (Azure App Services)      |
-+---------------------------+          +---------------------------+
-                                                    |
-                                           +------------------+
-                                           | Managed SQL DB   |
-                                           | (Azure SQL)      |
-                                           +------------------+
+Below is the architecture diagram representing the deployment of the Flutter mobile app, .NET Core backend, and React web-based back-office application:
+
+```
+            [Users]
+               |
+               v
+        [Azure Front Door]
+               |
+       +-------+-------+
+       |               |
+[React App Service] [Backend App Service]
+               |
+       [Azure SQL Database]
+               |
+[Managed Backups, Read Replicas]
 ```
 
+### Components
+1. **Frontend (React Web Application)**
+   - Deployed on Azure App Service.
+   - HTTPS-enabled with a custom domain.
+   - Integrated with Azure Front Door for load balancing and global distribution.
+
+2. **Backend (.NET Core)**
+   - Deployed on Azure App Service.
+   - Exposed via HTTPS and protected with Azure Application Gateway.
+   - Connected to an Azure SQL Database for secure and scalable data storage.
+
+3. **Database**
+   - Managed Azure SQL Database.
+   - Automated backups with retention policies and read replicas for performance optimization.
+
+4. **Mobile App (Flutter)**
+   - Built using the CI/CD pipeline, APK generated, and made available for distribution.
+
 ---
 
-## 2. **Network Setup**
+## Networking Setup
 
 ### Virtual Private Cloud (VPC)
-- **Backend and Database**:
-  - Deployed within a private subnet in Azure VPC.
-  - Restricted inbound and outbound traffic using NSGs (Network Security Groups).
+A VPC is configured to ensure secure communication within the backend and database layers:
+
+- **Subnets:**
+  - Public Subnet: Contains the load balancers (Azure Front Door, Application Gateway).
+  - Private Subnet: Hosts the backend App Service and database.
+
+- **Security Groups:**
+  - Allow inbound traffic on HTTPS (port 443) to the frontend and backend.
+  - Restrict database access to backend App Service IPs only.
 
 ### Load Balancer
-- **Azure Front Door**:
-  - Routes traffic to React frontend and backend instances.
-  - Ensures secure HTTPS communication and load balancing.
-  - Includes Web Application Firewall (WAF) for enhanced security.
-
-### Security Measures
-- **TLS/SSL Certificates**:
-  - Enabled for HTTPS connections via Azure Front Door.
-- **Firewall Rules**:
-  - Only allows specific IP ranges to access the database.
-  - Blocks all traffic to private subnets except through approved load balancers.
+Azure Front Door is used for traffic distribution:
+- Routes traffic to the React frontend and .NET Core backend.
+- Automatically scales based on demand.
+- Ensures HTTPS communication with SSL/TLS certificates.
 
 ---
 
-## 3. **Cost Optimization Strategies**
+## Cost Optimization Strategies
 
-### Cloud Services
-- **Azure App Services**:
-  - Autoscaling configured for the backend.
-  - Uses reserved instances for predictable workloads.
+### Services
+1. **Azure App Services (Frontend and Backend):**
+   - Enable autoscaling based on CPU/memory utilization.
+   - Use lower-cost tiers (e.g., B1/B2) in development environments.
 
-- **Azure SQL Database**:
-  - Tiered pricing model based on resource consumption.
-  - Scales automatically during peak loads.
+2. **Database Optimization:**
+   - Use Azure SQL’s scaling features for adjusting compute/storage.
+   - Implement caching to reduce database load.
 
-- **Azure Static Web Apps**:
-  - Cost-efficient hosting for the React frontend.
+3. **Budget Alerts:**
+   - Set budget alerts in Azure to monitor spending.
+   - Alerts trigger at 80%, 90%, and 100% usage.
 
-### Autoscaling
-- Configured for both the backend and web application:
-  - Scales based on CPU usage and request latency.
-  - Minimum and maximum instance thresholds set to manage costs.
-
-### Budget Alerts
-- Set up in the Azure Portal:
-  - Alerts configured for monthly cloud spend.
-  - Notifications sent to the operations team for budget threshold breaches.
+4. **Auto-scaling:**
+   - Configure autoscaling rules to handle traffic spikes without over-provisioning resources.
 
 ---
 
-## 4. **Logging and Monitoring Setup**
+## Logging and Monitoring
 
-### Logging
-- **Flutter Mobile App**:
-  - Logs captured using Firebase Crashlytics for performance and error reporting.
+### Prometheus + Grafana Setup
 
-- **React Web App**:
-  - Application logs sent to Azure Monitor Application Insights.
-
-- **.NET Core Backend**:
-  - Logs captured via Serilog and sent to Azure Log Analytics.
-
-### Monitoring
-- **Prometheus + Grafana**:
-  - Prometheus scrapes metrics from:
-    - .NET Core backend: Response times, API error rates.
-    - React frontend: Page load times, error rates.
-
-- **Grafana Dashboards**:
-  - Visualizes key metrics:
-    - Response time.
-    - Error rates.
-    - CPU/Memory usage.
-
-### Instructions for Accessing Grafana Dashboard
-1. **Deploy Prometheus and Grafana**:
-   - Prometheus configuration:
+#### Prometheus
+1. **Setup:**
+   - Install Prometheus and configure the `prometheus.yml` file:
      ```yaml
      global:
        scrape_interval: 15s
@@ -131,33 +102,112 @@
            - targets: ['frontend-app:80']
      ```
 
-   - Run Grafana:
-     ```sh
-     docker run -d -p 3000:3000 grafana/grafana
-     ```
+2. **Run Prometheus:**
+   ```sh
+   prometheus --config.file=prometheus.yml
+   ```
 
-2. **Access Dashboard**:
-   - Open Grafana at `http://<server-ip>:3000`.
-   - Import JSON configuration to set up the dashboard.
+#### Grafana
+1. **Setup:**
+   - Install Grafana and connect it to Prometheus as a data source.
+
+2. **Import Dashboard:**
+   - Use the provided `grafana.dashboards.json` to import a custom dashboard:
+     - Navigate to `Dashboard > Import`.
+     - Paste the JSON content and click **Load**.
+
+3. **Key Metrics Monitored:**
+   - Backend Response Time: `http_request_duration_seconds`.
+   - Frontend Error Rate: `rate(http_errors_total[1m])`.
+   - Resource Utilization: CPU, Memory usage.
+
+4. **Alerts:**
+   - Configure alerts in Grafana for downtime, high error rates, or resource utilization thresholds.
 
 ---
 
-## 5. **Deployment Strategy and Rollbacks**
+## Deployment Strategy and Rollbacks
 
 ### Deployment Strategy
-- **Blue-Green Deployment**:
-  - Deploy new versions to a separate environment.
-  - Test the new environment before switching traffic.
+1. **Blue-Green Deployment:**
+   - Create two environments (blue and green).
+   - Deploy new versions to the green environment.
+   - Perform health checks.
+   - Switch traffic to green if successful.
 
-- **Canary Deployment**:
-  - Gradually shift traffic to new deployments while monitoring performance.
+2. **Canary Deployment (Optional):**
+   - Gradually route traffic to the new version to test stability.
 
 ### Rollback Procedures
-- **Automatic Rollbacks**:
-  - Integrated into CI/CD pipelines.
-  - Deployments fail if health checks do not pass.
+1. **Automated Rollbacks:**
+   - The CI/CD pipeline includes health checks.
+   - If health checks fail:
+     - Automatically roll back to the last stable version.
+     - Notify the team via email/slack integrations.
 
-- **Manual Rollbacks**:
-  - Switch traffic back to the previous version using Azure Front Door.
-  - Retain backups of the previous deployment artifacts for restoration.
+2. **Manual Rollbacks:**
+   - Re-deploy the last stable build using pipeline triggers.
 
+---
+
+## Detailed CI/CD Pipeline Instructions
+
+### Mobile App (Flutter)
+1. Install dependencies:
+   ```yaml
+   - name: Install Dependencies
+     run: flutter pub get
+   ```
+2. Build APK:
+   ```yaml
+   - name: Build APK
+     run: flutter build apk
+   ```
+
+### Backend (.NET Core)
+1. Build and Test:
+   ```yaml
+   - name: Build Backend
+     run: dotnet build
+
+   - name: Run Unit Tests
+     run: dotnet test
+   ```
+2. Deploy to Azure App Service:
+   ```yaml
+   - name: Deploy to Azure
+     uses: azure/webapps-deploy@v2
+     with:
+       app-name: '<your-backend-app-name>'
+       slot-name: 'production'
+   ```
+
+### Frontend (React)
+1. Build and Test:
+   ```yaml
+   - name: Install Dependencies
+     run: npm install
+
+   - name: Run Tests
+     run: npm test
+
+   - name: Build Frontend
+     run: npm run build
+   ```
+2. Deploy to Azure App Service:
+   ```yaml
+   - name: Deploy to Azure
+     uses: azure/webapps-deploy@v2
+     with:
+       app-name: '<your-frontend-app-name>'
+       slot-name: 'production'
+   ```
+
+---
+
+## Accessing the Monitoring Dashboard
+1. Open Grafana at [http://localhost:3000](http://localhost:3000) (if local) or your public IP (cloud).
+2. Login credentials:
+   - **Username:** `admin`
+   - **Password:** `admin` (default, change it immediately).
+3. Navigate to your imported dashboard to view metrics and alerts.
