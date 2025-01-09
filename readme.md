@@ -5,8 +5,7 @@
 ### Components
 
 1. **Flutter Mobile App**
-   - Built and tested in the CI/CD pipeline.
-   - Artifacts stored for deployment to app stores.
+   - install and build in the CI/CD pipeline.
 
 2. **.NET Core Backend**
    - Hosted on Azure App Services.
