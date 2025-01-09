@@ -162,7 +162,3 @@
   - Switch traffic back to the previous version using Azure Front Door.
   - Retain backups of the previous deployment artifacts for restoration.
 
----
-
-## 6. **Conclusion**
-This documentation provides a comprehensive overview of the cloud architecture, network setup, cost optimization strategies, logging and monitoring, and deployment strategies implemented for the investment banking application. The setup ensures scalability, security, and reliability while maintaining cost efficiency.
