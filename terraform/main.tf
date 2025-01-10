@@ -1,14 +1,22 @@
 provider "azurerm" {
   features {}
+  subscription_id = var.subscription_id
 }
 
 variable "subscription_id" {
   description = "Azure Subscription ID"
 }
 
-provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id
+variable "resource_group_name" {
+  description = "Azure Resource Group Name"
+}
+
+variable "location" {
+  description = "Azure Region"
+}
+
+variable "sql_password" {
+  description = "SQL Administrator Password"
 }
 
 # Resource Group
@@ -17,14 +25,32 @@ resource "azurerm_resource_group" "main" {
   location = var.location
 }
 
-# App Service Plan 
+# App Service Plan with Autoscaling
 resource "azurerm_app_service_plan" "main" {
   name                = "AppServicePlan"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   sku {
-    tier = "Basic"
-    size = "B1"
+    tier = "Standard"
+    size = "S1"
+  }
+  dynamic "site_config" {
+    for_each = local.autoscale_settings
+    content {
+      min_instance_count = site_config.value.min_instance_count
+      max_instance_count = site_config.value.max_instance_count
+      target_cpu_percentage = site_config.value.target_cpu_percentage
+    }
+  }
+}
+
+locals {
+  autoscale_settings = {
+    default = {
+      min_instance_count    = 1
+      max_instance_count    = 3
+      target_cpu_percentage = 70
+    }
   }
 }
 
@@ -55,7 +81,7 @@ resource "azurerm_app_service" "frontend" {
   }
 }
 
-# Azure SQL Database
+# Azure SQL Server and Database
 resource "azurerm_sql_server" "main" {
   name                         = "backend-sql-server"
   location                     = azurerm_resource_group.main.location
@@ -71,6 +97,18 @@ resource "azurerm_sql_database" "main" {
   location            = azurerm_resource_group.main.location
   server_name         = azurerm_sql_server.main.name
   sku_name            = "Basic"
+  extended_auditing_policy {
+    storage_account_access_key = azurerm_storage_account.main.primary_access_key
+    storage_endpoint           = azurerm_storage_account.main.primary_blob_endpoint
+  }
+}
+
+# Backup and Recovery for SQL Database
+resource "azurerm_backup_protected_vm" "sql_backup" {
+  backup_policy_id    = azurerm_backup_policy_vm.main.id
+  source_vm_id        = azurerm_virtual_machine.main.id
+  recovery_vault_name = azurerm_recovery_services_vault.main.name
+  resource_group_name = azurerm_resource_group.main.name
 }
 
 # Virtual Network and Subnets
@@ -88,6 +126,25 @@ resource "azurerm_subnet" "backend" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
+# Load Balancer
+resource "azurerm_lb" "main" {
+  name                = "AppLoadBalancer"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "Standard"
+  frontend_ip_configuration {
+    name                 = "PublicIPAddress"
+    public_ip_address_id = azurerm_public_ip.main.id
+  }
+}
+
+resource "azurerm_public_ip" "main" {
+  name                = "PublicIP"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  allocation_method   = "Static"
+}
+
 # Private Endpoint for Backend SQL
 resource "azurerm_private_endpoint" "sql_endpoint" {
   name                = "sql-private-endpoint"
@@ -100,27 +157,6 @@ resource "azurerm_private_endpoint" "sql_endpoint" {
     subresource_names              = ["sqlServer"]
     is_manual_connection           = false
   }
-}
-
-# Private DNS Zone for SQL
-resource "azurerm_private_dns_zone" "sql_dns" {
-  name                = "privatelink.database.windows.net"
-  resource_group_name = azurerm_resource_group.main.name
-}
-
-resource "azurerm_private_dns_zone_virtual_network_link" "vnet_link" {
-  name                  = "sql-dns-link"
-  resource_group_name   = azurerm_resource_group.main.name
-  private_dns_zone_name = azurerm_private_dns_zone.sql_dns.name
-  virtual_network_id    = azurerm_virtual_network.vnet.id
-}
-
-resource "azurerm_private_dns_a_record" "sql_record" {
-  name                = azurerm_sql_server.main.name
-  zone_name           = azurerm_private_dns_zone.sql_dns.name
-  resource_group_name = azurerm_resource_group.main.name
-  ttl                 = 300
-  records             = [azurerm_private_endpoint.sql_endpoint.private_ip_address]
 }
 
 # Networking Security Groups for Frontend
