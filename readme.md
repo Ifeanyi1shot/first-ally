@@ -85,6 +85,8 @@ Azure Front Door is used for traffic distribution:
 
 ### Prometheus + Grafana Setup
 
+**Note:** The setup for Prometheus and Grafana has been implemented locally. Below are the steps followed for the local setup.
+
 #### Prometheus
 1. **Setup:**
    - Install Prometheus and configure the `prometheus.yml` file:
